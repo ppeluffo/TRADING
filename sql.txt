@@ -1,0 +1,186 @@
+INSERT INTO tb_empresas (nombre, sector_nasdaq_id, industria_nasdaq_id) VALUES
+( 'Empresa 1', 
+( SELECT sector_nasdaq_id FROM  tb_sectores_nasdaq WHERE sector_nasdaq_str = 'Energy'), 
+( SELECT industria_nasdaq_id FROM tb_industrias_nasdaq WHERE industria_nasdaq_str = 'Apparel')
+)
+
+
+
+select_sector = select(tb_sectores_nasdaq.sector_nasdaq_id).where(tb_sectores_nasdaq.sector_nasdaq_str = 'Energy')
+select_industry = select(tb_industrias_nasdaq.industria_nasdaq_id).where(tb_industrias_nasdaq.industria_nasdaq_str = 'Apparel')
+insert_stmt = insert(
+
+sel1 = select(ndc.Sectores_nasdaq.sector_nasdaq_id).where(ndc.Sectores_nasdaq.sector_nasdaq_str == 'Energy')
+sel2 = select(ndc.Industrias_nasdaq.industria_nasdaq_id).where(ndc.Industrias_nasdaq.industria_nasdaq_str == 'Apparel')
+
+
+
+
+
+
+#ifdef PUMPS
+void f_pump_0_config( bool f_debug, uint16_t freq, uint16_t dummyarg0)
+{
+
+    if (f_debug)
+        xprintf_P(PSTR("Pump 0 config %d Hz\r\n"), freq);
+    
+    pump0.freq = freq;
+    pump0_stop();
+    TCB1.CCMP = configCPU_CLOCK_HZ / freq;
+}
+// -----------------------------------------------------------------------------
+void f_pump_1_config( bool f_debug, uint16_t freq, uint16_t dummyarg0)
+{
+
+    if (f_debug)
+        xprintf_P(PSTR("Pump 1 config %d Hz\r\n"), freq);
+    
+    pump1.freq = freq;
+    pump1_stop();
+    TCB2.CCMP = configCPU_CLOCK_HZ / freq;
+}
+// -----------------------------------------------------------------------------
+void f_pump_2_config( bool f_debug, uint16_t freq, uint16_t dummyarg0)
+{
+    if (f_debug)
+        xprintf_P(PSTR("Pump 2 config %d Hz\r\n"), freq);
+
+    pump2.freq = freq;
+    pump2_stop();
+    TCB3.CCMP = configCPU_CLOCK_HZ / freq;
+}
+// -----------------------------------------------------------------------------
+#endif
+
+
+        if ( !strcmp_P( strupr(argv[2]), PSTR("CALIBRAR"))) {
+            systemVars.adc_cal_volts = atof(argv[3]);
+            systemVars.adc_cal_factor = ADC_calibrar();
+            pv_snprintfP_OK();
+            return;
+        }
+        
+        if ( !strcmp_P( strupr(argv[2]), PSTR("SETDEBUG"))) {
+            ADC_set_debug();
+            pv_snprintfP_OK();
+            return;
+        }
+        
+        if ( !strcmp_P( strupr(argv[2]), PSTR("CLEARDEBUG"))) {
+            ADC_clear_debug();
+            pv_snprintfP_OK();
+            return;
+        }
+        
+        if ( !strcmp_P( strupr(argv[2]), PSTR("READ"))) {
+            ADC_test_read_single();
+            pv_snprintfP_OK();
+            return;
+        }
+        
+        if ( !strcmp_P( strupr(argv[2]), PSTR("MREAD"))) {
+            ADC_test_read_multiple(atoi(argv[3]));
+            pv_snprintfP_OK();
+            return;
+        }
+        
+        pv_snprintfP_ERR();
+		return;
+		
+		
+static void cmdRunFunction(void)
+{
+
+    /*
+     * La función run fija los parámetros param1..3 del control block y 
+     * luego indica en el puntero a la función a ejecutar, cual es esta.
+     * La tarea tkSys monitorea el parámetro standby y cuando cambia, ejecuta la
+     * funcion pasandole los parametros dados.
+     * Para abortar un comando, usamos la flag emergency_exit.
+     *
+     */
+    
+    FRTOS_CMD_makeArgv();
+
+    // run lavar1
+    if ( !strcmp_P( strupr(argv[1]), PSTR("LAVAR1"))) {
+        testCB.param1 = true;
+        testCB.param2 = 0;
+        testCB.param3 = 0;
+        testCB.emergency_exit = false;
+        testCB.fn = f_lavar_reservorio_muestra;
+        testCB.standby = false; 
+        return;
+    } 
+    
+    // run initsys
+    if ( !strcmp_P( strupr(argv[1]), PSTR("INITSYS"))) {
+        testCB.param1 = true;
+        testCB.param2 = 0;
+        testCB.param3 = 0;
+        testCB.emergency_exit = false;
+        testCB.fn = f_init_system;
+        testCB.standby = false; 
+        return;
+    }    
+    
+    // run test1 N(samples) D(delay)
+    if ( !strcmp_P( strupr(argv[1]), PSTR("TEST1"))) {
+        runTest1();
+        return;
+    }
+
+    // run test2 N(samples) D(delay)
+    if ( !strcmp_P( strupr(argv[1]), PSTR("TEST2"))) {
+        runTest2();
+        return;
+    }
+    
+    // run adc N
+    if ( !strcmp_P( strupr(argv[1]), PSTR("ADC"))) {
+        runAdc();
+        return;
+    }
+          
+}
+//------------------------------------------------------------------------------
+void runTest1(void)
+{
+    //run test1 N(samples) D(delay)
+            
+    testCB.param1 = true;
+    testCB.param2 = atoi(argv[2]);
+    testCB.param3 = atoi(argv[3]);
+    testCB.emergency_exit = false;
+    testCB.fn = f_test_medir1;
+    testCB.standby = false;    
+}
+//------------------------------------------------------------------------------
+void runTest2(void)
+{
+    //run test1 N(samples) D(delay)
+            
+    testCB.param1 = true;
+    testCB.param2 = atoi(argv[2]);
+    testCB.param3 = atoi(argv[3]);
+    testCB.emergency_exit = false;
+    testCB.fn = f_test_medir2;
+    testCB.standby = false;    
+}
+//------------------------------------------------------------------------------
+void runAdc(void)
+{
+            
+    testCB.param1 = true;
+    testCB.param2 = atoi(argv[2]);
+    testCB.param3 = 0;
+    testCB.emergency_exit = false;
+    testCB.fn = f_adc_read;
+    testCB.standby = false;
+}
+//------------------------------------------------------------------------------
+
+	
+
+
